@@ -288,7 +288,7 @@ class TiffWriter(object):
 
     def save(self, data, photometric=None, planarconfig=None, resolution=None,
              description=None, volume=False, writeshape=False, compress=0,
-             extratags=()):
+             extratags=(), date_time=None):
         """Write image data to TIFF file.
 
         Image data are written in one stripe per plane.
@@ -327,6 +327,9 @@ class TiffWriter(object):
             if necessary and no other description is given.
         extratags: sequence of tuples
             Additional tags as [(code, dtype, count, value, writeonce)].
+        date_time : datetime or None, optional
+            Set date and time. If None, set to now (default).
+
 
             code : int
                 The TIFF tag Id.
@@ -510,8 +513,10 @@ class TiffWriter(object):
             addtag('image_description', 's', 0,
                    "shape=(%s)" % (",".join('%i' % i for i in data_shape)),
                    writeonce=True)
+        date_time = (date_time if isinstance(date_time, datetime.datetime)
+                     else datetime.datetime.now())
         addtag('datetime', 's', 0,
-               datetime.datetime.now().strftime("%Y:%m:%d %H:%M:%S"),
+               date_time.strftime("%Y:%m:%d %H:%M:%S"),
                writeonce=True)
         addtag('compression', 'H', 1, 32946 if compress else 1)
         addtag('orientation', 'H', 1, 1)
